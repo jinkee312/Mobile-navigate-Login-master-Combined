@@ -72,7 +72,7 @@ class StudentLogin : AppCompatActivity() {
                 Toast.makeText(this@StudentLogin, "Error Encounter Due to " + databaseError.message, Toast.LENGTH_LONG).show()/**/
 
             }
-
+//
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {
 
