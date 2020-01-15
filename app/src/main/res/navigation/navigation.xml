@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/courseFragment">
+
+    <fragment
+        android:id="@+id/LatestActivity"
+        android:name="com.example.android.navigation.LatestActivity"
+        android:label="Chat"
+        tools:layout="@layout/fragment_latest_activity"
+        />
+    <fragment
+        android:id="@+id/courseFragment"
+        android:name="com.example.android.navigation.CourseFragment"
+        android:label="Course"
+        tools:layout="@layout/fragment_course"
+        >
+    </fragment>
+    <fragment
+        android:id="@+id/fileFragment"
+        android:name="com.example.android.navigation.FileFragment"
+        android:label="File"
+        tools:layout="@layout/fragment_file"
+        />
+
+</navigation>
