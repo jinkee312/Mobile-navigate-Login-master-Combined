@@ -7,7 +7,7 @@
     android:layout_width="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/frameLayout"
+        android:id="@+id/login_activity_student"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:context=".UserActivities.LoginActivity">

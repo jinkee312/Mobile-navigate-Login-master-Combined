@@ -12,7 +12,12 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import com.example.android.navigation.models.User
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import kotlinx.android.synthetic.main.login_activity.*
 
 class StaffLogin : AppCompatActivity() {
@@ -56,6 +61,28 @@ class StaffLogin : AppCompatActivity() {
     private fun loginUser() {
         email = emailA?.text.toString()
         password = this.passwordA?.text.toString()
+        val uid = FirebaseAuth.getInstance().currentUser?.uid.toString()
+        var userref = FirebaseDatabase.getInstance().getReference("Users").child(uid)
+        var user = User()
+        userref.addValueEventListener(object : ValueEventListener {
+            override fun onCancelled(databaseError: DatabaseError) {
+                Toast.makeText(this@StaffLogin, "Error Encounter Due to " + databaseError.message, Toast.LENGTH_LONG).show()/**/
+
+            }
+            //
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    val std = dataSnapshot.getValue(User::class.java)!!
+                    if(std.uid.equals(uid))
+                        user = std
+
+
+
+                }
+
+            }
+
+        })
         if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)) {
             mProgressBar!!.setMessage("Logging User...")
             mProgressBar!!.show()
@@ -75,6 +102,10 @@ class StaffLogin : AppCompatActivity() {
                         Toast.makeText(this@StaffLogin, "Authentication failed.",
                             Toast.LENGTH_SHORT).show()
                         val intent = Intent(this@StaffLogin, StudentRegister::class.java)
+                        intent.putExtra("uid", user.uid)
+                        intent.putExtra("position", user.position)
+                        intent.putExtra("email", user.email)
+                        intent.putExtra("username", user.username)
                         startActivity(intent)
                     }
                 }

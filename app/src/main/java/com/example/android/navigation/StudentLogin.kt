@@ -81,8 +81,6 @@ class StudentLogin : AppCompatActivity() {
 
 
 
-                } else {
-                    Toast.makeText(this@StudentLogin, "No data Found", Toast.LENGTH_LONG).show()
                 }
 
             }
@@ -99,16 +97,15 @@ class StudentLogin : AppCompatActivity() {
                     if (task.isSuccessful) {
                         // Sign in success, update UI with signed-in user's information
                         Log.d(TAG, "signInWithEmail:success")
-                            val intent = Intent(this@StudentLogin,NavActivity::class.java)
-                      Log.d("sad",user.uid)
-                        Log.d("sad",user.email)
-                        Log.d("sad",user.position)
-                        Log.d("sad",user.username)
-                        Log.d("sad",uid)
-                        Toast.makeText(this@StudentLogin, user.username,  Toast.LENGTH_SHORT).show()
-
-                        intent.putExtra("user", user)
+//                        val bundle = Bundle()
+//                        bundle.putParcelable("user", user)
+                        val intent = Intent(this@StudentLogin,NavActivity::class.java)
+                        intent.putExtra("uid", user.uid)
+                        intent.putExtra("position", user.position)
+                        intent.putExtra("email", user.email)
+                        intent.putExtra("username", user.username)
                         startActivity(intent)
+
 
 
 

@@ -17,32 +17,51 @@
 package com.example.android.navigation
 
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.example.android.navigation.databinding.ActivityNavBinding
+import com.example.android.navigation.models.User
 
 class NavActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        var uid = intent.getStringExtra("uid")
+        var position = intent.getStringExtra("position")
+        var username = intent.getStringExtra("username")
+        var email = intent.getStringExtra("email")
+        var user = User(uid,position,username,email)
+        val bundle = Bundle()
+        bundle.putString("uid",user.uid)
+        bundle.putString("position",user.position)
+        bundle.putString("email",user.email)
+        bundle.putString("username",user.username)
         @Suppress("UNUSED_VARIABLE")
         val binding = DataBindingUtil.setContentView<ActivityNavBinding>(this, R.layout.activity_nav)
 
-        drawerLayout = binding.drawerLayout
 
         val navController = this.findNavController(R.id.myNavHostFragment)
-
+        drawerLayout = binding.drawerLayout
         NavigationUI.setupActionBarWithNavController(this,navController, drawerLayout)
-
         NavigationUI.setupWithNavController(binding.navView, navController)
+
 
     }
 
+
+
+
+
     override fun onSupportNavigateUp(): Boolean {
+
         val navController = this.findNavController(R.id.myNavHostFragment)
+
         return NavigationUI.navigateUp(navController, drawerLayout)
     }
 

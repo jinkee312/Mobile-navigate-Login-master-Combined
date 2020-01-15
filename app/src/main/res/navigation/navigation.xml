@@ -17,6 +17,7 @@
         android:label="Course"
         tools:layout="@layout/fragment_course"
         >
+
     </fragment>
     <fragment
         android:id="@+id/fileFragment"

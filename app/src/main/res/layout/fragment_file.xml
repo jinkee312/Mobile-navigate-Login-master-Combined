@@ -65,9 +65,9 @@
                         android:layout_width="50dp"
                         android:layout_height="wrap_content"
                         android:text="+"
-                        app:layout_constraintBottom_toBottomOf="@+id/textView"
+                        app:layout_constraintBottom_toBottomOf="@+id/filename"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/textView"
+                        app:layout_constraintStart_toEndOf="@+id/filename"
                         app:layout_constraintTop_toTopOf="parent" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

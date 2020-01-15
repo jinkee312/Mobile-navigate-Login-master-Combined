@@ -128,7 +128,7 @@ class CourseRecyclerAdapter (val courseList: List<Course>, val context: Context)
                 else
                 {
                     // update data
-                    val std_data = Course(perItemPosition.courseid,name,perItemPosition.desc,perItemPosition.username)
+                    val std_data = Course(perItemPosition.courseid,name,perItemPosition.username)
                     studentdatabaseref.child(perItemPosition.courseid).setValue(std_data)
                     Toast.makeText(context, "Data Updated", Toast.LENGTH_SHORT).show()
 
