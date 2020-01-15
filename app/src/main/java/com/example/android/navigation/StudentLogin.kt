@@ -65,7 +65,7 @@ class StudentLogin : AppCompatActivity() {
         email = emailA?.text.toString()
         password = this.passwordA?.text.toString()
         val uid = FirebaseAuth.getInstance().currentUser?.uid.toString()
-        var userref = FirebaseDatabase.getInstance().getReference("/Users/$uid")
+        var userref = FirebaseDatabase.getInstance().getReference("Users").child(uid)
         var user = User()
         userref.addValueEventListener(object : ValueEventListener {
             override fun onCancelled(databaseError: DatabaseError) {
@@ -75,12 +75,10 @@ class StudentLogin : AppCompatActivity() {
 //
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {
+                        val std = dataSnapshot.getValue(User::class.java)!!
+                    if(std.uid.equals(uid))
+                        user = std
 
-                    for (data in dataSnapshot.children) {
-                        val std = data.getValue(User::class.java)
-                        if(std?.uid.equals(uid))
-                            user = std!!
-                    }
 
 
                 } else {
@@ -106,6 +104,7 @@ class StudentLogin : AppCompatActivity() {
                         Log.d("sad",user.email)
                         Log.d("sad",user.position)
                         Log.d("sad",user.username)
+                        Log.d("sad",uid)
                         Toast.makeText(this@StudentLogin, user.username,  Toast.LENGTH_SHORT).show()
 
                         intent.putExtra("user", user)
