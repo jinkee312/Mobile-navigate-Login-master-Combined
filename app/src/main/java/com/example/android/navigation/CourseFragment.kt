@@ -31,6 +31,8 @@ class CourseFragment : Fragment() {
 
     private lateinit var coursetable: DatabaseReference
     private lateinit var courseList: MutableList<Course>
+    private lateinit var userCourseList: MutableList<Course>
+
     private lateinit var user:User
     private var count:Long = 1
 
@@ -42,6 +44,7 @@ class CourseFragment : Fragment() {
 //        progressBar = findViewById(R.id.progressbar)
         coursetable = FirebaseDatabase.getInstance().getReference("Course")
         courseList = mutableListOf()
+        userCourseList = mutableListOf()
         user = User()
         val rootView = inflater.inflate(R.layout.fragment_course, container, false)
 //        val uid = arguments!!.getString("uid")!!
@@ -63,7 +66,7 @@ class CourseFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         getUser()
-
+        getUserCourse()
         btnAdd.setOnClickListener() {
                 addDialog()
         }
@@ -145,17 +148,42 @@ class CourseFragment : Fragment() {
         alert.show()
     }
 
+    fun getUserCourse(){
+
+        var userref = FirebaseDatabase.getInstance().getReference("Users").child(user.uid)
+//        val c = Course("-0","","")
+//        userref.setValue(c)
+        userref.addValueEventListener(object : ValueEventListener {
+            override fun onCancelled(databaseError: DatabaseError) {
+                Toast.makeText(context, "Error Encounter Due to " + databaseError.message, Toast.LENGTH_LONG).show()/**/
+
+            }
+
+            //
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                if (dataSnapshot.exists()) {
+                    for (data in dataSnapshot.children) {
+                            val std = data.getValue(Course::class.java)!!
+                                userCourseList.add(std)
+                        Log.d("sad",userCourseList[0].title)
+
+                    }
+                }
+            }
+        })
+
+    }
+
 
     private fun initRecyclerView() {
         try {
-            for(x in courseList){
-                if(user.position.equals("Student")){
+                if(user.position.equals("Student")) {
+
 
                 }
-                else{
 
-                }
-            }
+
 
             recycler_view.apply {
                 layoutManager = LinearLayoutManager(context)
@@ -168,15 +196,8 @@ class CourseFragment : Fragment() {
             }
         }catch (ex:Exception){
             Log.d("",ex.message)
-
         }
-
-
     }
-
-
-
-
 
     // load data from firebase database
     fun LoadData() {
