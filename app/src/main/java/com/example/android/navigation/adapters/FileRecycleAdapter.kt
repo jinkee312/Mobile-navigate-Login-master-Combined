@@ -16,14 +16,14 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android.navigation.R
 import com.example.android.navigation.models.File
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.example.android.navigation.models.User
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 
-class FileRecyclerAdapter (val fileList: List<File>, val context: Context, val courseid:String): RecyclerView.Adapter<FileRecyclerAdapter.FileViewHolder>()
+class FileRecyclerAdapter (val fileList: List<File>, val context: Context, val courseid:String, val type: String): RecyclerView.Adapter<FileRecyclerAdapter.FileViewHolder>()
 {
-    private lateinit var filetable: DatabaseReference
 
-
+    private var positionType = type
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
         return FileViewHolder(
@@ -37,16 +37,6 @@ class FileRecyclerAdapter (val fileList: List<File>, val context: Context, val c
 
     override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
 
-
-        var name:String = fileList.get(position).filename
-        holder.file_title.setText(name)
-
-
-        holder.edit.setOnClickListener()
-        {
-            val perItemPosition = fileList.get(position)
-            updateDialog(perItemPosition)
-        }
         holder.itemView.setOnClickListener(){
             val perItemPosition = fileList.get(position)
             Log.d("sad",perItemPosition.url)
@@ -56,14 +46,31 @@ class FileRecyclerAdapter (val fileList: List<File>, val context: Context, val c
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             context.startActivity(intent)
         }
-//
-//        holder.delete.setOnClickListener()
-//        {
-////            val perItemPosition = fileList.get(position)
-////            deletedata(perItemPosition.courseid)
-////            notifyItemRemoved(position)
-//
-//        }
+
+        var name:String = fileList.get(position).filename
+        holder.file_title.setText(name)
+
+        if(positionType == "Staff") {
+
+            holder.edit.setOnClickListener()
+            {
+                val perItemPosition = fileList.get(position)
+                updateDialog(perItemPosition)
+            }
+
+
+        holder.delete.setOnClickListener()
+        {
+            val perItemPosition = fileList.get(position)
+            deletedata(perItemPosition.fileid)
+            notifyItemRemoved(position)
+
+        }
+        }else{
+            holder.edit.visibility = View.INVISIBLE
+            holder.delete.visibility = View.INVISIBLE
+        }
+
 
 
     }
@@ -71,6 +78,9 @@ class FileRecyclerAdapter (val fileList: List<File>, val context: Context, val c
     override fun getItemCount(): Int {
         return fileList.size
     }
+
+
+
 
     private fun updateDialog(perItemPosition: File) {
 
@@ -123,14 +133,14 @@ class FileRecyclerAdapter (val fileList: List<File>, val context: Context, val c
         alert.show()
     }
 
-//    private fun deletedata(courseid: String)
-//    {
-//        val studentdatabaseref = FirebaseDatabase.getInstance().getReference("Course").child(courseid)
-//        studentdatabaseref.removeValue().addOnCompleteListener()
-//        {
-//            Toast.makeText(context, "Data Deleted Successfully", Toast.LENGTH_SHORT).show()
-//        }
-//    }
+    private fun deletedata(fileid: String)
+    {
+        val studentdatabaseref = FirebaseDatabase.getInstance().getReference("Course").child(courseid).child(fileid)
+        studentdatabaseref.removeValue().addOnCompleteListener()
+        {
+            Toast.makeText(context, "Data Deleted Successfully", Toast.LENGTH_SHORT).show()
+        }
+    }
 
 
     class FileViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
@@ -139,7 +149,7 @@ class FileRecyclerAdapter (val fileList: List<File>, val context: Context, val c
 //        val blog_author = itemView.findViewById(R.id.blog_author) as TextView
         val edit = itemView.findViewById(R.id.btn_editfile) as ImageView
 
-//        val delete = itemView.findViewById(R.id.btn_deletecourse) as ImageView
+        val delete = itemView.findViewById(R.id.btn_deletefile) as ImageView
 
     }
 

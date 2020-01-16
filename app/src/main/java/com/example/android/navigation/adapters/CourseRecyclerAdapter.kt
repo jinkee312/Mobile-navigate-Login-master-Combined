@@ -41,6 +41,8 @@ class CourseRecyclerAdapter (val courseList: List<Course>, val context: Context,
     }
 
 
+
+
     override fun onBindViewHolder(holder: CourseViewHolder, position: Int) {
         holder.itemView.setOnClickListener(){
             val perItemPosition = courseList.get(position)

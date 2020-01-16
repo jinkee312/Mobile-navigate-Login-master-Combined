@@ -94,9 +94,6 @@ class CourseFragment : Fragment() {
                 }
             }
         })
-//        val c = User("C1","","","")
-//        userref.child("try").setValue(c)
-//        userref.child("try").removeValue()
     }
 
     fun addDialog(){

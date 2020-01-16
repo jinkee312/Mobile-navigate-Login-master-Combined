@@ -1,5 +1,6 @@
 package com.example.android.navigation
 
+import android.app.ActionBar
 import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
 import android.content.DialogInterface
@@ -25,6 +26,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android.navigation.adapters.FileRecyclerAdapter
 import com.example.android.navigation.models.File
+import com.example.android.navigation.models.User
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -36,6 +39,7 @@ import kotlinx.android.synthetic.main.fragment_file.*
  */
 class FileFragment : Fragment() {
 
+    private lateinit var user:User
     private lateinit var filetable: DatabaseReference
     private lateinit var fileList: MutableList<File>
     private lateinit var recyclerView: RecyclerView
@@ -55,10 +59,11 @@ class FileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-
+        user = User()
         courseid = arguments!!.getString("courseid")!!
 
         val title = arguments!!.getString("title")!!
+        getUser()
 
         filetable = FirebaseDatabase.getInstance().getReference("Course").child(courseid)
         LoadData()
@@ -67,21 +72,31 @@ class FileFragment : Fragment() {
 
 
 //        addDataSet()
-        btnAddFile.setOnClickListener() {
-            if (!filename.text.toString().equals("")) {
-                if (ContextCompat.checkSelfPermission(activity!!, android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    selectPDF()
-                } else {
+        if(user.position == "Staff") {
+            btnAddFile.setOnClickListener() {
+                if (!filename.text.toString().equals("")) {
+                    if (ContextCompat.checkSelfPermission(activity!!, android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        selectPDF()
+                    } else {
 
-                    var str = arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                        var str = arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE)
 
-                    ActivityCompat.requestPermissions(activity!!, str, 9)
+                        ActivityCompat.requestPermissions(activity!!, str, 9)
 
+                    }
                 }
             }
         }
+        else{
+            btnAddFile.visibility = View.INVISIBLE
+            filename.visibility = View.INVISIBLE
+        }
+
+
+
 
     }
+
 
 
 
@@ -94,6 +109,22 @@ class FileFragment : Fragment() {
         } else
             Toast.makeText(context, "Please provide permission..", Toast.LENGTH_SHORT).show()
 
+    }
+
+    fun getUser(){
+        val uid = FirebaseAuth.getInstance().currentUser?.uid.toString()
+        var userref = FirebaseDatabase.getInstance().getReference("Users").child(uid)
+
+        userref.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(databaseError: DatabaseError) {
+                Toast.makeText(context, "Error Encounter Due to " + databaseError.message, Toast.LENGTH_LONG).show()/**/
+
+            }
+            //
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                user = dataSnapshot.getValue(User::class.java)!!
+            }
+        })
     }
 
     fun selectPDF() {
@@ -121,7 +152,7 @@ class FileFragment : Fragment() {
                 layoutManager = LinearLayoutManager(context)
                 val itemDeco = DividerItemDecoration(context, RecyclerView.VERTICAL)
                 addItemDecoration(itemDeco)
-                fileAdapter = FileRecyclerAdapter(fileList, context, courseid)
+                fileAdapter = FileRecyclerAdapter(fileList, context, courseid,user.position)
                 fileAdapter.notifyDataSetChanged()
                 adapter = fileAdapter
 
