@@ -32,7 +32,7 @@ class LatestActivity : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        Toast.makeText(activity, "Successfull5", Toast.LENGTH_LONG).show()
+        //Toast.makeText(activity, "Successfull5", Toast.LENGTH_LONG).show()
         Log.d("asd","asd")
         inflater?.inflate(R.menu.nav_menu, menu)
         return super.onCreateOptionsMenu(menu, inflater)
