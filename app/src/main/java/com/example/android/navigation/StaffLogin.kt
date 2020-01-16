@@ -102,10 +102,7 @@ class StaffLogin : AppCompatActivity() {
                         Toast.makeText(this@StaffLogin, "Authentication failed.",
                             Toast.LENGTH_SHORT).show()
                         val intent = Intent(this@StaffLogin, StudentRegister::class.java)
-                        intent.putExtra("uid", user.uid)
-                        intent.putExtra("position", user.position)
-                        intent.putExtra("email", user.email)
-                        intent.putExtra("username", user.username)
+
                         startActivity(intent)
                     }
                 }

@@ -32,16 +32,6 @@ class NavActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var uid = intent.getStringExtra("uid")
-        var position = intent.getStringExtra("position")
-        var username = intent.getStringExtra("username")
-        var email = intent.getStringExtra("email")
-        var user = User(uid,position,username,email)
-        val bundle = Bundle()
-        bundle.putString("uid",user.uid)
-        bundle.putString("position",user.position)
-        bundle.putString("email",user.email)
-        bundle.putString("username",user.username)
         @Suppress("UNUSED_VARIABLE")
         val binding = DataBindingUtil.setContentView<ActivityNavBinding>(this, R.layout.activity_nav)
 

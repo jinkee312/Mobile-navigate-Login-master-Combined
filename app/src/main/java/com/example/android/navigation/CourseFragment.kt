@@ -31,10 +31,8 @@ class CourseFragment : Fragment() {
 
     private lateinit var coursetable: DatabaseReference
     private lateinit var courseList: MutableList<Course>
-    private lateinit var recyclerView: RecyclerView
-    //    private lateinit var progressBar: ProgressBar
     private lateinit var user:User
-
+    private var count:Long = 1
 
     private lateinit var courseAdapter: CourseRecyclerAdapter
 
@@ -46,7 +44,6 @@ class CourseFragment : Fragment() {
         courseList = mutableListOf()
         user = User()
         val rootView = inflater.inflate(R.layout.fragment_course, container, false)
-        getUser()
 //        val uid = arguments!!.getString("uid")!!
 //        val postion = arguments!!.getString("position")!!
 //        val email = arguments!!.getString("email")!!
@@ -55,15 +52,23 @@ class CourseFragment : Fragment() {
 
 //        addDataSet()
 
-        rootView.btnAdd.setOnClickListener() {
-            addDialog(user.username)
-        }
+
 
 
         LoadData()
 
         return rootView
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        getUser()
+
+        btnAdd.setOnClickListener() {
+                addDialog()
+        }
+    }
+
     fun getUser(){
         val uid = FirebaseAuth.getInstance().currentUser?.uid.toString()
         var userref = FirebaseDatabase.getInstance().getReference("Users").child(uid)
@@ -78,37 +83,29 @@ class CourseFragment : Fragment() {
                     val std = dataSnapshot.getValue(User::class.java)!!
                     if(std.uid.equals(uid))
                         user = std
-
-
-
                 }
-
             }
-
         })
     }
 
-    fun addDialog(name:String){
+    fun addDialog(){
+
         val builder = AlertDialog.Builder(context)
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.add_dialog, null)
         builder.setCancelable(false)
 
         val editext1 = view.findViewById<EditText>(R.id.editText1)
-//        val editext2 = view.findViewById<EditText>(R.id.updatespinerstring)
-
-        // set exist data from recycler to dialog field
-//        editext2.setText(perItemPosition.username)
-
         // now set view to builder
         builder.setView(view)
         // now set positive negative button in alertdialog
         builder.setPositiveButton("Add", object : DialogInterface.OnClickListener{
             override fun onClick(dialog: DialogInterface?, which: Int) {
                 val studentdatabaseref = FirebaseDatabase.getInstance().getReference("Course")
-                val id = studentdatabaseref.push().key
+                val userdatabaseref = FirebaseDatabase.getInstance().getReference("Users")
+                val id = "C"+ count
                 val name = editext1!!.text.trim().toString()
-                val course = Course(id.toString(), name.trim(), user.username)
+                val course = Course(id, name.trim(), user.username)
                 if (TextUtils.isEmpty(name))
                 {
                     editext1!!.error = "please Fill up data"
@@ -117,14 +114,23 @@ class CourseFragment : Fragment() {
                 else
                 {
                     // update data
-                    val std_data = course
-                    studentdatabaseref.child(id.toString()).setValue(std_data)
-                    Toast.makeText(context, "Data Updated", Toast.LENGTH_SHORT).show()
-
+                    if (user.position.equals("Staff")) {
+                        val std_data = course
+                        studentdatabaseref.child(id).setValue(std_data)
+                        Toast.makeText(context, "Data Added", Toast.LENGTH_SHORT).show()
+                    }
+                    else {
+                        for (x in courseList) {
+                            if (x.courseid.equals(name)) {
+                                val std_data = x
+                                Log.d("sad",user.username)
+                                Log.d("sad",x.courseid)
+                                userdatabaseref.child(user.uid).child(x.courseid).setValue(std_data)
+                                Toast.makeText(context, "Data Added", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
                 }
-
-
-
             }
         })
 
@@ -140,10 +146,17 @@ class CourseFragment : Fragment() {
     }
 
 
-
-
     private fun initRecyclerView() {
         try {
+            for(x in courseList){
+                if(user.position.equals("Student")){
+
+                }
+                else{
+
+                }
+            }
+
             recycler_view.apply {
                 layoutManager = LinearLayoutManager(context)
                 val itemDeco = DividerItemDecoration(context, RecyclerView.VERTICAL)
@@ -163,29 +176,7 @@ class CourseFragment : Fragment() {
 
 
 
-    private fun savedatatoserver() {
-        // get value from edit text & spinner
 
-        val title: String = "Mobile App Development".trim()
-        val description: String = "Learn how to do mobile app".trim()
-        val username = "Koay Jin Kee"
-
-        if (!TextUtils.isEmpty(title) && !TextUtils.isEmpty(description)) {
-            val courseid = coursetable.push().key
-
-            val STD = Course(courseid.toString(), title, username)
-            coursetable.child(courseid.toString()).setValue(STD)
-
-            coursetable.child(courseid.toString()).setValue(STD).addOnCompleteListener {
-                Toast.makeText(context, "Successfull", Toast.LENGTH_LONG).show()
-            }
-
-
-        } else {
-            Toast.makeText(context, "Please Enter the name of student", Toast.LENGTH_LONG).show()
-        }
-
-    }
 
     // load data from firebase database
     fun LoadData() {
@@ -205,6 +196,8 @@ class CourseFragment : Fragment() {
                     // fetch data & add to list
                     for (data in dataSnapshot.children) {
                         val std = data.getValue(Course::class.java)
+                        count = dataSnapshot.childrenCount+1
+
                         courseList.add(std!!)
                     }
 

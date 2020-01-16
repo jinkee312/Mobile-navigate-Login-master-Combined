@@ -116,14 +116,18 @@ class FileFragment : Fragment() {
 
 
     private fun initRecyclerView() {
-        recycler_view_file.apply {
-            layoutManager = LinearLayoutManager(context)
-            val itemDeco = DividerItemDecoration(context, RecyclerView.VERTICAL)
-            addItemDecoration(itemDeco)
-            fileAdapter = FileRecyclerAdapter(fileList, context, courseid)
-            fileAdapter.notifyDataSetChanged()
-            adapter = fileAdapter
+        try {
+            recycler_view_file.apply {
+                layoutManager = LinearLayoutManager(context)
+                val itemDeco = DividerItemDecoration(context, RecyclerView.VERTICAL)
+                addItemDecoration(itemDeco)
+                fileAdapter = FileRecyclerAdapter(fileList, context, courseid)
+                fileAdapter.notifyDataSetChanged()
+                adapter = fileAdapter
 
+            }
+        }catch (ex:Exception){
+            Log.d("error",ex.message)
         }
 
     }
@@ -161,46 +165,49 @@ class FileFragment : Fragment() {
     fun LoadData() {
         // show progress bar when call method as loading concept
 //        progressBar.visibility = View.VISIBLE
+        try {
+            filetable.addValueEventListener(object : ValueEventListener {
+                override fun onCancelled(databaseError: DatabaseError) {
+                    Toast.makeText(context, "Error Encounter Due to " + databaseError.message, Toast.LENGTH_LONG).show()/**/
 
-        filetable.addValueEventListener(object : ValueEventListener {
-            override fun onCancelled(databaseError: DatabaseError) {
-                Toast.makeText(context, "Error Encounter Due to " + databaseError.message, Toast.LENGTH_LONG).show()/**/
-
-            }
-
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if (dataSnapshot.exists()) {
-
-
-                    //before fetch we have clear the list not to show duplicate value
-                    fileList.clear()
-                    // fetch data & add to list
-
-                    for (data in dataSnapshot.children) {
-                        val fileid = data.child("fileid").value.toString()
-                        val url = data.child("url").value.toString()
-                        val filename = data.child("filename").value.toString()
-                        val std = File(fileid, url, filename)
-//                            val std = data.getValue(File::class.java)
-                        if (fileid == "null") {
-                            break
-                        }
-                        fileList.add(std)
-                    }
-
-
-                    // bind data to adapter
-                    initRecyclerView()
-//                    progressBar.visibility = View.GONE
-                } else {
-                    // if no data found or you can check specefici child value exist or not here
-                    Toast.makeText(context, "No data Found", Toast.LENGTH_LONG).show()
-//                    progressBar.visibility = View.GONE
                 }
 
-            }
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    if (dataSnapshot.exists()) {
 
-        })
+
+                        //before fetch we have clear the list not to show duplicate value
+                        fileList.clear()
+                        // fetch data & add to list
+
+                        for (data in dataSnapshot.children) {
+                            val fileid = data.child("fileid").value.toString()
+                            val url = data.child("url").value.toString()
+                            val filename = data.child("filename").value.toString()
+                            val std = File(fileid, url, filename)
+//                            val std = data.getValue(File::class.java)
+                            if (fileid == "null") {
+                                break
+                            }
+                            fileList.add(std)
+                        }
+
+
+                        // bind data to adapter
+                        initRecyclerView()
+//                    progressBar.visibility = View.GONE
+                    } else {
+                        // if no data found or you can check specefici child value exist or not here
+//                        Toast.makeText(context, "No data Found", Toast.LENGTH_LONG).show()
+//                    progressBar.visibility = View.GONE
+                    }
+
+                }
+
+            })
+        }catch (ex:Exception){
+            Log.d("error",ex.message)
+        }
     }
 
 

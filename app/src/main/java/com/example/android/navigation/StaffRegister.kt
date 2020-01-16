@@ -99,7 +99,7 @@ class StaffRegister : AppCompatActivity() {
 
 
                         val uid = FirebaseAuth.getInstance().uid
-                        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+                        val ref = FirebaseDatabase.getInstance().getReference("/Users/$uid")
                         val position = "Staff"
                         val userM = User(uid.toString(),position.toString(),name.toString(),email.toString())
                         ref.setValue(userM)
