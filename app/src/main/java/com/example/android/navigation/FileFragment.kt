@@ -63,40 +63,58 @@ class FileFragment : Fragment() {
         courseid = arguments!!.getString("courseid")!!
 
         val title = arguments!!.getString("title")!!
-        getUser()
 
-        filetable = FirebaseDatabase.getInstance().getReference("Course").child(courseid)
-        LoadData()
+        filetable = FirebaseDatabase.getInstance().getReference("Course").child(courseid).child("File")
         filestorage = FirebaseStorage.getInstance().getReference(title)
         fileList = mutableListOf()
 
 
 //        addDataSet()
-        if(user.position == "Staff") {
+//        Log.d("sad",user.position)
+//        if(user.position == "Staff"){
+//                btnAddFile.visibility = View.VISIBLE
+//                filename.visibility = View.VISIBLE
+//            }
+//        else {
+//            btnAddFile.visibility = View.INVISIBLE
+//            filename.visibility = View.INVISIBLE
+//        }
+
+Log.d("ggg", user.position)
             btnAddFile.setOnClickListener() {
-                if (!filename.text.toString().equals("")) {
-                    if (ContextCompat.checkSelfPermission(activity!!, android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                        selectPDF()
-                    } else {
+                if(user.position == "Staff") {
 
-                        var str = arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                    if (!filename.text.toString().equals("")) {
+                        if (ContextCompat.checkSelfPermission(activity!!, android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                            selectPDF()
+                        } else {
 
-                        ActivityCompat.requestPermissions(activity!!, str, 9)
+                            var str = arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE)
 
+                            ActivityCompat.requestPermissions(activity!!, str, 9)
+
+                        }
                     }
                 }
+                else {
+                    btnAddFile.visibility = View.INVISIBLE
+                    filename.visibility = View.INVISIBLE
+                }
+
+
             }
+
         }
-        else{
+
+    override fun onStart(){
+        super.onStart()
+        if(user.position == "Student"){
             btnAddFile.visibility = View.INVISIBLE
             filename.visibility = View.INVISIBLE
         }
-
-
-
-
+        getUser()
+        LoadData()
     }
-
 
 
 
@@ -217,9 +235,9 @@ class FileFragment : Fragment() {
                             val filename = data.child("filename").value.toString()
                             val std = File(fileid, url, filename)
 //                            val std = data.getValue(File::class.java)
-                            if (fileid == "null") {
-                                break
-                            }
+//                            if (fileid == "null") {
+//                                break
+//                            }
                             fileList.add(std)
                         }
 
