@@ -102,7 +102,7 @@ class StudentRegister : AppCompatActivity() {
                         val userM = User(uid.toString(),position.toString(),name.toString(),email.toString())
                         ref.setValue(userM)
 
-
+                        updateUserInfoAndUI()
                         Toast.makeText(this,"Successfully Registered!!",Toast.LENGTH_SHORT).show()
                     } else {
                         // If sign in fails, display a message to the user.
@@ -120,6 +120,12 @@ class StudentRegister : AppCompatActivity() {
 
     }
 
+    private fun updateUserInfoAndUI() {
+        //start next activity
+        val intent = Intent(this@StudentRegister, StudentLogin::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
+    }
 
 
 
