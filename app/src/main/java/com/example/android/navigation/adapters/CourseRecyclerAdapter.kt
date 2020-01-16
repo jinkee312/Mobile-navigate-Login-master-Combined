@@ -26,9 +26,10 @@ import androidx.appcompat.app.AppCompatActivity
 
 //
 
-class CourseRecyclerAdapter (val courseList: List<Course>, val context: Context): RecyclerView.Adapter<CourseRecyclerAdapter.CourseViewHolder>()
+class CourseRecyclerAdapter (val courseList: List<Course>, val context: Context, type: String): RecyclerView.Adapter<CourseRecyclerAdapter.CourseViewHolder>()
 {
     private lateinit var coursetable: DatabaseReference
+    private var positionType = type
 
 
 //    private var items: List<BlogPost> = ArrayList()
@@ -40,48 +41,37 @@ class CourseRecyclerAdapter (val courseList: List<Course>, val context: Context)
     }
 
 
-
-
-
     override fun onBindViewHolder(holder: CourseViewHolder, position: Int) {
-
-
         holder.itemView.setOnClickListener(){
             val perItemPosition = courseList.get(position)
-
             val bundle = Bundle()
             bundle.putString("courseid", perItemPosition.courseid)
             bundle.putString("title",perItemPosition.title)
-
-
             val myFragment = FileFragment()
             myFragment.setArguments(bundle)
             val activity = context as AppCompatActivity
-
-
-//            (context as FragmentActivity).fragmentManager.beginTransaction()
-//                    .replace(R.id.courseFragment, myFragment as Fragment)
-//                    .commit()
-
             activity.supportFragmentManager.beginTransaction()
                     .replace(R.id.courseFragment,myFragment).addToBackStack(null).commit()//
-
         }
         holder.blog_title.text = courseList.get(position).title
         holder.blog_author.text = courseList.get(position).username
 //        holder.bind(fileList.get(position))
-        holder.edit.setOnClickListener()
-        {
-            val perItemPosition = courseList.get(position)
-            updateDialog(perItemPosition)
-        }
+        if(positionType == "Staff") {
+            holder.edit.setOnClickListener()
+            {
+                val perItemPosition = courseList.get(position)
+                updateDialog(perItemPosition)
+            }
+            holder.delete.setOnClickListener()
+            {
+                val perItemPosition = courseList.get(position)
+                deletedata(perItemPosition.courseid)
+                notifyItemRemoved(position)
 
-        holder.delete.setOnClickListener()
-        {
-            val perItemPosition = courseList.get(position)
-            deletedata(perItemPosition.courseid)
-            notifyItemRemoved(position)
-
+            }
+        }else{
+            holder.edit.visibility = View.INVISIBLE
+            holder.delete.visibility = View.INVISIBLE
         }
 
 

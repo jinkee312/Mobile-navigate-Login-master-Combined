@@ -55,40 +55,48 @@ class CourseFragment : Fragment() {
 
 //        addDataSet()
 
-
-
-
-        LoadData()
-
         return rootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        getUser()
-        getUserCourse()
+
+
         btnAdd.setOnClickListener() {
                 addDialog()
         }
     }
 
+    override fun onStart(){
+        super.onStart()
+        getUser()
+        getUserCourse()
+        LoadData()
+    }
+
     fun getUser(){
         val uid = FirebaseAuth.getInstance().currentUser?.uid.toString()
         var userref = FirebaseDatabase.getInstance().getReference("Users").child(uid)
-        userref.addValueEventListener(object : ValueEventListener {
+
+        userref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(databaseError: DatabaseError) {
                 Toast.makeText(context, "Error Encounter Due to " + databaseError.message, Toast.LENGTH_LONG).show()/**/
 
             }
             //
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    val std = dataSnapshot.getValue(User::class.java)!!
-                    if(std.uid.equals(uid))
-                        user = std
+                user = dataSnapshot.getValue(User::class.java)!!
+                if (user != null) {
+                    Log.d("sad",user.position + " " + user.username)
+                    getUserCourse()
+                }else{
+                    Log.d("sad"," no entered")
                 }
             }
         })
+//        val c = User("C1","","","")
+//        userref.child("try").setValue(c)
+//        userref.child("try").removeValue()
     }
 
     fun addDialog(){
@@ -106,6 +114,7 @@ class CourseFragment : Fragment() {
             override fun onClick(dialog: DialogInterface?, which: Int) {
                 val studentdatabaseref = FirebaseDatabase.getInstance().getReference("Course")
                 val userdatabaseref = FirebaseDatabase.getInstance().getReference("Users")
+
                 val id = "C"+ count
                 val name = editext1!!.text.trim().toString()
                 val course = Course(id, name.trim(), user.username)
@@ -116,7 +125,6 @@ class CourseFragment : Fragment() {
                 }
                 else
                 {
-                    // update data
                     if (user.position.equals("Staff")) {
                         val std_data = course
                         studentdatabaseref.child(id).setValue(std_data)
@@ -126,9 +134,7 @@ class CourseFragment : Fragment() {
                         for (x in courseList) {
                             if (x.courseid.equals(name)) {
                                 val std_data = x
-                                Log.d("sad",user.username)
-                                Log.d("sad",x.courseid)
-                                userdatabaseref.child(user.uid).child(x.courseid).setValue(std_data)
+                                userdatabaseref.child(user.uid).child("course").child(x.courseid).setValue(std_data)
                                 Toast.makeText(context, "Data Added", Toast.LENGTH_SHORT).show()
                             }
                         }
@@ -150,9 +156,7 @@ class CourseFragment : Fragment() {
 
     fun getUserCourse(){
 
-        var userref = FirebaseDatabase.getInstance().getReference("Users").child(user.uid)
-//        val c = Course("-0","","")
-//        userref.setValue(c)
+        var userref = FirebaseDatabase.getInstance().getReference("Users").child(user.uid).child("course")
         userref.addValueEventListener(object : ValueEventListener {
             override fun onCancelled(databaseError: DatabaseError) {
                 Toast.makeText(context, "Error Encounter Due to " + databaseError.message, Toast.LENGTH_LONG).show()/**/
@@ -161,14 +165,21 @@ class CourseFragment : Fragment() {
 
             //
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                userCourseList.clear()
 
                 if (dataSnapshot.exists()) {
-                    for (data in dataSnapshot.children) {
+                    try {
+                        for (data in dataSnapshot.children) {
                             val std = data.getValue(Course::class.java)!!
-                                userCourseList.add(std)
-                        Log.d("sad",userCourseList[0].title)
+                            userCourseList.add(std)
+                            Log.d("sad", userCourseList[userCourseList.size - 1].title)
 
+                        }
+                    }catch (ex:Exception){
+                        Log.d("sad",ex.message)
                     }
+
+                    initRecyclerView()
                 }
             }
         })
@@ -178,22 +189,29 @@ class CourseFragment : Fragment() {
 
     private fun initRecyclerView() {
         try {
+            Log.d("sad",user.position)
                 if(user.position.equals("Student")) {
+                    recycler_view.apply {
+                        layoutManager = LinearLayoutManager(context)
+                        val itemDeco = DividerItemDecoration(context, RecyclerView.VERTICAL)
+                        addItemDecoration(itemDeco)
+                        courseAdapter = CourseRecyclerAdapter(userCourseList, context, user.position)
+                        courseAdapter.notifyDataSetChanged()
+                        adapter = courseAdapter
+                    }
+                }else{
+                    recycler_view.apply {
+                        layoutManager = LinearLayoutManager(context)
+                        val itemDeco = DividerItemDecoration(context, RecyclerView.VERTICAL)
+                        addItemDecoration(itemDeco)
+                        courseAdapter = CourseRecyclerAdapter(courseList, context, user.position)
+                        courseAdapter.notifyDataSetChanged()
+                        adapter = courseAdapter
 
-
+                    }
                 }
 
 
-
-            recycler_view.apply {
-                layoutManager = LinearLayoutManager(context)
-                val itemDeco = DividerItemDecoration(context, RecyclerView.VERTICAL)
-                addItemDecoration(itemDeco)
-                courseAdapter = CourseRecyclerAdapter(courseList, context)
-                courseAdapter.notifyDataSetChanged()
-                adapter = courseAdapter
-
-            }
         }catch (ex:Exception){
             Log.d("",ex.message)
         }
@@ -201,7 +219,7 @@ class CourseFragment : Fragment() {
 
     // load data from firebase database
     fun LoadData() {
-
+        Log.d("sad",user.position)
         // show progress bar when call method as loading concept
 //        progressBar.visibility = View.VISIBLE
         coursetable.addValueEventListener(object : ValueEventListener {
@@ -221,6 +239,7 @@ class CourseFragment : Fragment() {
 
                         courseList.add(std!!)
                     }
+
 
                     // bind data to adapter
                     initRecyclerView()
